@@ -57,8 +57,15 @@ def update_task(id, task):
     else:
         print(f'ID {id} doesn´t exist')
 
-def delete_task():
-    pass
+def delete_task(id):
+    data = read_json()
+
+    if any(task['id'] == id for task in data['tasks']):
+        data['tasks'].pop(id - 1)
+        print(f'Task {id} deleted')
+    else:
+        print(f'Task {id} doesn´t exist')
+    write_json(data)
 
 def list_tasks():
     pass
@@ -76,6 +83,8 @@ def main():
                 create_task(' '.join(task))
             case ['update', id, *task]:
                 update_task(int(id), ' '.join(task))
+            case ['delete', id]:
+                delete_task(int(id))
             case ['exit']:
                 print('Closing program...')
                 break
