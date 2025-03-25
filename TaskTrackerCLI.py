@@ -1,6 +1,5 @@
 import json
 import os
-import argparse
 from datetime import datetime
 
 
@@ -24,7 +23,6 @@ def write_json(data):
 def create_json_file():
         with open(JSON_DIR, "w") as j:
             json.dump({'tasks': []}, j, indent=4)
-        print("Json file Created")
 
 def create_task(task):
     data = read_json()
@@ -67,17 +65,22 @@ def delete_task(id):
         print(f'Task {id} doesn´t exist')
     write_json(data)
 
-def list_tasks():
-    pass
+def list_tasks(status):
+    data = read_json()
 
-def clear_tasks():
-    pass
+    if status == 'all':
+        for task in data['tasks']:
+            # TODO: Formatear output
+            print(task)
+        
+        # TODO: Agrager listado por status
 
 def main():    
     while True:
         command = input('task-cli ').strip().lower()
         command = command.split()
 
+        #TODO: Validar Inputs
         match command:
             case ['add', *task]:
                 create_task(' '.join(task))
@@ -85,6 +88,11 @@ def main():
                 update_task(int(id), ' '.join(task))
             case ['delete', id]:
                 delete_task(int(id))
+            case ['list', status]:
+                list_tasks(status)
+            case ['clear']:
+                create_json_file()
+                print('All tasks have been eliminated')
             case ['exit']:
                 print('Closing program...')
                 break
