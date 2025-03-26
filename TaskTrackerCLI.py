@@ -65,23 +65,72 @@ def delete_task(id):
         print(f'Task {id} doesn´t exist')
     write_json(data)
 
+def format_response(task):
+    for key, value in task.items():
+        print(key, ':', value)
+    print()
+
 def list_tasks(status):
     data = read_json()
 
     if status == 'all':
         for task in data['tasks']:
-            # TODO: Formatear output
-            print(task)
-        
-        # TODO: Agrager listado por status
+            format_response(task)         
+    elif status == 'new':
+        for task in data['tasks']:
+            if task['status'] == 'new':
+                format_response(task) 
+    elif status == 'in-progress':
+        for task in data['tasks']:
+            if task['status'] == 'in-progress':
+                format_response(task)
+    elif status == 'done':
+        for task in data['tasks']:
+            if task['status'] == 'done':
+                format_response(task)
+    else:
+        print(f'status {status} does not exist!')
+
+def mark_status(status, id):
+    data = read_json()
+
+    json_task = next((task for task in data['tasks'] if task['id'] == id), None)
+
+    if json_task:
+        json_task['status'] = status
+        json_task['updatedAt'] = datetime.now().strftime('%d-%m-%Y, %H:%M:%S.%f')
+
+        write_json(data)
+        print(f'Task {id} status updated: {status}')
+    else:
+        print(f'ID {id} doesn´t exist')
+
+def help_menu():
+    print('''
+    =========================================================================
+                                Task CLI Help
+    =========================================================================
+    Commands:
+      add <task>              - Add a new task
+      update <id> <desc>      - Update the task description
+      delete <id>             - Delete a task by ID
+      list <status>           - List tasks by status (all, in-progress, done)
+      clear                   - Delete all tasks
+      mark-in-progress <id>   - Mark a task as "in-progress"
+      mark-done <id>          - Mark a task as "done"
+      exit                    - Close the program
+    ==========================================================================
+    ''')
 
 def main():    
     while True:
-        command = input('task-cli ').strip().lower()
+        command = input('\ntask-cli ').strip().lower()
         command = command.split()
 
         #TODO: Validar Inputs
         match command:
+            case ['help']:
+                help_menu()
             case ['add', *task]:
                 create_task(' '.join(task))
             case ['update', id, *task]:
@@ -93,6 +142,10 @@ def main():
             case ['clear']:
                 create_json_file()
                 print('All tasks have been eliminated')
+            case ['mark-in-progress', id]:
+                mark_status('in-progress', int(id))
+            case ['mark-done', id]:
+                mark_status('done', int(id))
             case ['exit']:
                 print('Closing program...')
                 break
